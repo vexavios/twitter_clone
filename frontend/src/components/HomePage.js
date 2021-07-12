@@ -13,11 +13,16 @@ export default class HomePage extends Component {
     this.state = {
       author: "",
       postContent: "",
+      allPostIDs: [],
+      allPostAuthors: [],
+      allPostContents: [],
+      allPostCreationDates: [],
     };
 
     this.handleAuthor = this.handleAuthor.bind(this);
     this.handlePostContent = this.handlePostContent.bind(this);
     this.handlePostButtonPressed = this.handlePostButtonPressed.bind(this);
+    this.getPostDetails();
   }
 
   handleAuthor(e) {
@@ -47,7 +52,53 @@ export default class HomePage extends Component {
       .then((data) => this.props.history.push("/post/" + data.id));
   }
 
+  getPostDetails() {
+    fetch("/api/posts")
+      .then((response) => response.json())
+      .then((data) => {
+        // get all post information and save in state
+        data.forEach((post) => {
+          this.setState((prevState) => ({
+            allPostIDs: [...prevState.allPostIDs, post.id],
+            allPostAuthors: [...prevState.allPostAuthors, post.author],
+            allPostContents: [...prevState.allPostContents, post.post_content],
+            allPostCreationDates: [
+              ...prevState.allPostCreationDates,
+              post.created_at,
+            ],
+          }));
+        });
+      });
+  }
+
   render() {
+    const allPosts = [];
+
+    // save all posts as html to render
+    for (let i = this.state.allPostIDs.length - 1; i >= 0; i--) {
+      allPosts.push(
+        <Container>
+          <Row>
+            <Col>
+              <br />
+              <Card>
+                <Card.Body>
+                  <Card.Title>{this.state.allPostAuthors[i]}</Card.Title>
+                  <Card.Subtitle className="mb-2 text-muted">
+                    Created at {this.state.allPostCreationDates[i]}
+                  </Card.Subtitle>
+                  <Card.Text>{this.state.allPostContents[i]}</Card.Text>
+                  <Card.Link href={`/post/${this.state.allPostIDs[i]}`}>
+                    View Post Page
+                  </Card.Link>
+                </Card.Body>
+              </Card>
+            </Col>
+          </Row>
+        </Container>
+      );
+    }
+
     return (
       <div>
         <Container>
@@ -90,6 +141,9 @@ export default class HomePage extends Component {
             </Col>
           </Row>
         </Container>
+        <br />
+        {allPosts}
+        <br />
       </div>
     );
   }
