@@ -30,16 +30,21 @@ export default class Header extends Component {
                   <Nav.Link href="/">Home</Nav.Link>
                 </Nav.Item>
                 <Nav.Item>
-                  <Nav.Link href="/">Explore</Nav.Link>
+                  <Nav.Link
+                    href={
+                      this.props.userID
+                        ? `/profile/${this.props.userID}`
+                        : `/profile`
+                    }
+                  >
+                    Profile
+                  </Nav.Link>
                 </Nav.Item>
                 <Nav.Item>
-                  <Nav.Link href="/">Messages</Nav.Link>
+                  <Nav.Link href="/login">Login</Nav.Link>
                 </Nav.Item>
                 <Nav.Item>
-                  <Nav.Link href="/">Notifications</Nav.Link>
-                </Nav.Item>
-                <Nav.Item>
-                  <Nav.Link href="/profile">Your Profile</Nav.Link>
+                  <Nav.Link href="/register">Register</Nav.Link>
                 </Nav.Item>
               </Nav>
             </Navbar.Collapse>

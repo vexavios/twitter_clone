@@ -3,6 +3,8 @@ from .views import index
 
 urlpatterns = [
     path('', index),
-    path('profile/', index),
-    path('post/<str:postID>', index)
+    path('post/<str:postID>', index),
+    path('profile/<str:userID>', index),
+    path('login', index),
+    path('register', index)
 ]
