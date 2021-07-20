@@ -49,7 +49,7 @@ export default class HomePage extends Component {
 
     fetch("/api/create-post", requestOptions)
       .then((response) => response.json())
-      .then((data) => this.props.history.push("/post/" + data.id));
+      .then((data) => this.props.history.push(""));
   }
 
   getPostDetails() {

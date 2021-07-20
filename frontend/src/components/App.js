@@ -26,7 +26,7 @@ export default class App extends Component {
       userID: null,
     };
 
-    this.displayLoginInfo = this.displayLoginInfo.bind(this);
+    // this.displayLoginInfo = this.displayLoginInfo.bind(this);
   }
 
   async componentDidMount() {
@@ -39,18 +39,18 @@ export default class App extends Component {
       });
   }
 
-  displayLoginInfo() {
-    return this.state.userID
-      ? `Logged in as user ${this.state.userID}!`
-      : `Not logged in.`;
-  }
+  // displayLoginInfo() {
+  //   return this.state.userID
+  //     ? `Logged in as user ${this.state.userID}!`
+  //     : `Not logged in.`;
+  // }
 
   render() {
     return (
       <div>
         <Header userID={this.state.userID} />
 
-        {this.displayLoginInfo()}
+        {/* {this.displayLoginInfo()} */}
 
         <Router>
           <Switch>

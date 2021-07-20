@@ -22,6 +22,12 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ('id', 'username', 'email', 'password', 'created_at')
 
 
+class LoginUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('username', 'password')
+
+
 class RegisterUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User

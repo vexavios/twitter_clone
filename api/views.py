@@ -1,12 +1,12 @@
 from django.shortcuts import render
 from rest_framework import generics, status
 from rest_framework.utils import serializer_helpers
-from .serializers import PostSerializer, CreatePostSerializer, UserSerializer, RegisterUserSerializer
+from .serializers import PostSerializer, CreatePostSerializer, UserSerializer, LoginUserSerializer, RegisterUserSerializer
 from .models import Post, User
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.http import JsonResponse
-from django.contrib.auth.hashers import make_password
+from django.contrib.auth.hashers import check_password, make_password
 
 # Create your views here.
 
@@ -85,7 +85,29 @@ class GetUser(APIView):
 
 
 class LoginUser(APIView):
-    pass
+    serializer_class = LoginUserSerializer
+
+    def post(self, request, format=None):
+        if not self.request.session.exists(self.request.session.session_key):
+            self.request.session.create()
+
+        serializer = self.serializer_class(data=request.data)
+
+        if serializer.is_valid():
+            username = serializer.data.get('username')
+            password = serializer.data.get('password')
+
+            # make sure user exists in database
+            users = User.objects.filter(username=username)
+
+            if users.count() > 0:
+                # make sure password is correct
+                if check_password(password, users.first().password) == True:
+                    self.request.session['userID'] = users.first().id
+
+                    return Response(UserSerializer(users.first()).data, status=status.HTTP_200_OK)
+
+        return Response({'Bad Request': 'Invalid data...'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class RegisterUserView(APIView):
@@ -103,14 +125,13 @@ class RegisterUserView(APIView):
             password = make_password(serializer.data.get('password'))
             created_at = serializer.data.get('created_at')
 
-            user = User(username=username, email=email,
-                        password=password, created_at=created_at)
-            user.save()
+            # make sure username does not already exist
+            if User.objects.filter(username=username).count() == 0:
+                user = User(username=username, email=email,
+                            password=password, created_at=created_at)
+                user.save()
 
-            # REMOVE ONCE LOGIN IS WORKING
-            self.request.session['userID'] = user.id
-
-            return Response(UserSerializer(user).data, status=status.HTTP_201_CREATED)
+                return Response(UserSerializer(user).data, status=status.HTTP_201_CREATED)
 
         return Response({'Bad Request': 'Invalid data...'}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -123,4 +144,15 @@ class UserLoggedIn(APIView):
         data = {
             'id': self.request.session.get('userID')
         }
+
         return JsonResponse(data, status=status.HTTP_200_OK)
+
+
+class LogoutUser(APIView):
+    def post(self, request, format=None):
+        if 'userID' in self.request.session:
+            self.request.session.pop('userID')
+
+            return Response({'Message': 'Success'}, status=status.HTTP_200_OK)
+
+        return Response({'Message': 'Failure'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
